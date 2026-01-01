@@ -9,6 +9,7 @@ import createIcon from "../../assets/create.svg"
 export default function StudentLogin() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
+  const [showPassword, setShowPassword] = useState(false)
   const navigate = useNavigate()
 
   const login = async () => {
@@ -30,7 +31,7 @@ export default function StudentLogin() {
       <header className={styles.header}>
         <div className={styles.brand}>
           <img src={logo} className={styles.logo} />
-          <div className={styles.college}>
+          <div className={styles.collegeText}>
             <div className={styles.collegeName}>COLLEGE OF ENGINEERING PERUMON</div>
             <div className={styles.collegeSub}>
               Under the Cooperative Academy of Professional Education (CAPE)<br />
@@ -39,7 +40,7 @@ export default function StudentLogin() {
           </div>
         </div>
 
-        <div className={styles.create} onClick={createAccount}>
+        <div className={styles.navAction} onClick={createAccount}>
           <img src={createIcon} />
           <span>Create Account</span>
         </div>
@@ -47,16 +48,38 @@ export default function StudentLogin() {
 
       <main className={styles.main}>
         <div className={styles.formBox}>
-          <h1>Login</h1>
-          <h2>Lab Scheduler</h2>
+          <div className={styles.heading}>
+            <h1>Login</h1>
+            <p>Lab Scheduler</p>
+          </div>
 
-          <input placeholder="Email" onChange={e => setEmail(e.target.value)} />
-          <input type="password" placeholder="Password" onChange={e => setPassword(e.target.value)} />
+          <div className={styles.field}>
+            <input
+              type="email"
+              placeholder="Email"
+              onChange={e => setEmail(e.target.value)}
+            />
+          </div>
 
-          <button onClick={login}>Login</button>
+          <div className={styles.field}>
+            <input
+              type={showPassword ? "text" : "password"}
+              placeholder="Password"
+              onChange={e => setPassword(e.target.value)}
+            />
+            <span
+              className={styles.toggle}
+              onClick={() => setShowPassword(!showPassword)}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </span>
+          </div>
 
+          <button className={styles.loginBtn} onClick={login}>
+            Login
+          </button>
 
-          <div className={styles.links}>
+          <div className={styles.formActions}>
             <span onClick={createAccount}>Create Account</span>
             <span onClick={forgotPassword}>Forgot Password?</span>
           </div>
