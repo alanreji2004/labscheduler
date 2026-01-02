@@ -143,6 +143,12 @@
   background-color: #ebebeb;
 }
 
+.loginBtn:disabled {
+  cursor: not-allowed;
+  background-color: #f0f0f0;
+  color: #9a9a9a;
+}
+
 .formActions {
   display: flex;
   justify-content: space-between;
@@ -152,6 +158,20 @@
 
 .formActions span {
   cursor: pointer;
+}
+
+.error {
+  font-size: 13px;
+  color: #c62828;
+  text-align: center;
+  line-height: 1.4;
+}
+
+.success {
+  font-size: 13px;
+  color: #2e7d32;
+  text-align: center;
+  line-height: 1.4;
 }
 
 @media (max-width: 768px) {

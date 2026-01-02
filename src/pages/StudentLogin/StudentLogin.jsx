@@ -1,4 +1,4 @@
-import { signInWithEmailAndPassword, sendPasswordResetEmail, createUserWithEmailAndPassword } from "firebase/auth"
+import { signInWithEmailAndPassword, sendPasswordResetEmail } from "firebase/auth"
 import { auth } from "../../firebase/firebase"
 import styles from "./StudentLogin.module.css"
 import { useNavigate } from "react-router-dom"
@@ -10,20 +10,55 @@ export default function StudentLogin() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [showPassword, setShowPassword] = useState(false)
+  const [error, setError] = useState("")
+  const [loading, setLoading] = useState(false)
   const navigate = useNavigate()
 
   const login = async () => {
-    await signInWithEmailAndPassword(auth, email, password)
-    navigate("/student/dashboard")
-  }
+    setError("")
 
-  const createAccount = async () => {
-    await createUserWithEmailAndPassword(auth, email, password)
-    navigate("/student/dashboard")
+    if (!email || !password) {
+      setError("Email and password are required")
+      return
+    }
+
+    try {
+      setLoading(true)
+      await signInWithEmailAndPassword(auth, email, password)
+      navigate("/")
+    } catch (err) {
+      if (
+        err.code === "auth/invalid-credential" ||
+        err.code === "auth/wrong-password" ||
+        err.code === "auth/user-not-found"
+      ) {
+        setError("Incorrect email or password")
+      } else if (err.code === "auth/invalid-email") {
+        setError("Invalid email address")
+      } else if (err.code === "auth/user-disabled") {
+        setError("This account has been disabled")
+      } else {
+        setError("Login failed. Please try again")
+      }
+    } finally {
+      setLoading(false)
+    }
   }
 
   const forgotPassword = async () => {
-    await sendPasswordResetEmail(auth, email)
+    setError("")
+
+    if (!email) {
+      setError("Enter your email to reset password")
+      return
+    }
+
+    try {
+      await sendPasswordResetEmail(auth, email)
+      setError("Password reset link sent to your email")
+    } catch {
+      setError("Unable to send reset email")
+    }
   }
 
   return (
@@ -40,7 +75,7 @@ export default function StudentLogin() {
           </div>
         </div>
 
-        <div className={styles.navAction} onClick={createAccount}>
+        <div className={styles.navAction} onClick={() => navigate("/signup")}>
           <img src={createIcon} />
           <span>Create Account</span>
         </div>
@@ -57,6 +92,7 @@ export default function StudentLogin() {
             <input
               type="email"
               placeholder="Email"
+              value={email}
               onChange={e => setEmail(e.target.value)}
             />
           </div>
@@ -65,6 +101,7 @@ export default function StudentLogin() {
             <input
               type={showPassword ? "text" : "password"}
               placeholder="Password"
+              value={password}
               onChange={e => setPassword(e.target.value)}
             />
             <span
@@ -75,12 +112,18 @@ export default function StudentLogin() {
             </span>
           </div>
 
-          <button className={styles.loginBtn} onClick={login}>
-            Login
+          {error && <div className={styles.error}>{error}</div>}
+
+          <button
+            className={styles.loginBtn}
+            onClick={login}
+            disabled={loading}
+          >
+            {loading ? "Logging in..." : "Login"}
           </button>
 
           <div className={styles.formActions}>
-            <span onClick={createAccount}>Create Account</span>
+            <span onClick={() => navigate("/signup")}>Create Account</span>
             <span onClick={forgotPassword}>Forgot Password?</span>
           </div>
         </div>

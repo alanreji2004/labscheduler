@@ -16,10 +16,10 @@ const root = ReactDOM.createRoot(document.getElementById("root"))
 root.render(
   <BrowserRouter>
     <Routes>
-      <Route path="/" element={<StudentLogin />} />
+      <Route path="/login" element={<StudentLogin />} />
       <Route path="/signup" element={<StudentSignup />} />
       <Route path="/admin" element={<AdminLogin />} />
-      <Route path="/student/dashboard" element={<StudentDashboard />} />
+      <Route path="/" element={<StudentDashboard />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
       <Route path="/lab/:id" element={<LabDetails />} />
     </Routes>

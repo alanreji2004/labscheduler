@@ -74,7 +74,7 @@ export default function StudentSignup() {
           </div>
         </div>
 
-        <div className={styles.navAction} onClick={() => navigate("/")}>
+        <div className={styles.navAction} onClick={() => navigate("/login")}>
           <img src={loginIcon} />
           <span>Login</span>
         </div>
@@ -141,7 +141,7 @@ export default function StudentSignup() {
           </button>
 
           <div className={styles.formActions}>
-            <span onClick={() => navigate("/")}>Already have an account? Login</span>
+            <span onClick={() => navigate("/login")}>Already have an account? Login</span>
           </div>
         </div>
       </main>
