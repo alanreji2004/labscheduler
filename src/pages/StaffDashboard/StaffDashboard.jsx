@@ -244,6 +244,11 @@ export default function StaffDashboard() {
             </div>
 
             <div className={styles.detail}>
+              <span>Subject</span>
+              <p>{active.subject}</p>
+            </div>
+
+            <div className={styles.detail}>
               <span>Description</span>
               <p>{active.description}</p>
             </div>
