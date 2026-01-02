@@ -1,0 +1,280 @@
+@import url("https://fonts.googleapis.com/css2?family=Cabin:wght@400;600;700&display=swap");
+
+* {
+  box-sizing: border-box;
+}
+
+.page {
+  font-family: "Cabin", sans-serif;
+  min-height: 100vh;
+  background: #ffffff;
+  display: flex;
+  flex-direction: column;
+}
+
+.header {
+  padding: 24px 40px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 18px;
+}
+
+.logo {
+  width: 70px;
+}
+
+.collegeText {
+  display: flex;
+  flex-direction: column;
+}
+
+.collegeName {
+  font-size: 20px;
+  font-weight: 700;
+  color: #c62828;
+  letter-spacing: 0.4px;
+}
+
+.collegeSub {
+  font-size: 13px;
+  color: #555555;
+  line-height: 1.4;
+  margin-top: 4px;
+}
+
+.collegeSub span {
+  color: #e65100;
+  font-weight: 600;
+}
+
+.profile {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  color: #444444;
+  cursor: pointer;
+}
+
+.profile img {
+  width: 26px;
+  height: 26px;
+}
+
+
+.profile span {
+  font-size: 14px;
+}
+
+.profile img {
+  width: 20px;
+}
+
+.main {
+  width: 100%;
+  max-width: 1200px;
+  margin: auto;
+  padding: 24px;
+}
+
+.main h1 {
+  font-size: 22px;
+  margin-bottom: 6px;
+}
+
+.main p {
+  font-size: 14px;
+  color: #555;
+}
+
+.calendar {
+  margin-top: 32px;
+}
+
+.monthHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.monthHeader h3 {
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.monthHeader button {
+  background: none;
+  border: none;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.monthHeader .disabled {
+  opacity: 0.3;
+  pointer-events: none;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 8px;
+}
+
+.day {
+  border: 1px solid #e0e0e0;
+  padding: 10px;
+  text-align: center;
+  font-size: 13px;
+}
+
+.form {
+  margin-top: 40px;
+  max-width: 520px;
+  border: 1px solid #e0e0e0;
+  padding: 28px;
+}
+
+.form h2 {
+  font-size: 18px;
+  margin-bottom: 14px;
+}
+
+.form input,
+.form textarea,
+.form select {
+  width: 100%;
+  padding: 10px 12px;
+  font-size: 14px;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  margin-bottom: 12px;
+}
+
+.form input:disabled {
+  background: #f5f5f5;
+}
+
+.form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.row {
+  display: flex;
+  gap: 10px;
+}
+
+.row input,
+.row select {
+  flex: 1;
+}
+
+.add {
+  width: 100%;
+  padding: 10px;
+  background: #f3f3f3;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  cursor: pointer;
+  margin-bottom: 16px;
+}
+
+.staffs {
+  border: 1px solid #e0e0e0;
+  max-height: 160px;
+  overflow-y: auto;
+  margin-bottom: 16px;
+}
+
+.staff {
+  padding: 10px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.staff:hover {
+  background: #f7f7f7;
+}
+
+.staff.active {
+  background: #ededed;
+  font-weight: 600;
+}
+
+.submit {
+  width: 100%;
+  padding: 12px;
+  font-size: 14px;
+  background: #f3f3f3;
+  border: 1px solid #cccccc;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+.loading {
+  padding: 60px;
+  text-align: center;
+  font-size: 16px;
+}
+
+@media (max-width: 900px) {
+  .main {
+    padding: 20px;
+  }
+}
+
+@media (max-width: 768px) {
+  .header {
+    padding: 16px 20px;
+  }
+
+  .collegeName {
+    font-size: 16px;
+  }
+
+  .profile span {
+    display: none;
+  }
+
+  .grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+
+  .form {
+    padding: 22px;
+  }
+}
+
+@media (max-width: 480px) {
+  .grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+
+  .row {
+    flex-direction: column;
+  }
+
+  .form {
+    padding: 18px;
+  }
+}
+.labMeta {
+  font-size: 14px;
+  color: #555;
+  margin-bottom: 12px;
+}
+
+.form {
+  margin: 40px auto;
+  max-width: 520px;
+  border: 1px solid #e0e0e0;
+  padding: 28px;
+  border-radius: 6px;
+}
