@@ -301,7 +301,7 @@ export default function StaffDashboard() {
                 {staff.designation === "principal" ? (
                   <button
                     className={styles.forward}
-                    onClick={() => updateStatus("approved")}
+                    onClick={() => updateStatus("approved by principal")}
                   >
                     Approve
                   </button>
