@@ -9,7 +9,9 @@ import {
   orderBy,
   getDocs,
   updateDoc,
-  doc
+  addDoc,
+  doc,
+  serverTimestamp
 } from "firebase/firestore"
 import styles from "./StaffDashboard.module.css"
 import logo from "../../assets/logo.svg"
@@ -22,6 +24,7 @@ export default function StaffDashboard() {
   const [approved, setApproved] = useState([])
   const [active, setActive] = useState(null)
   const [remark, setRemark] = useState("")
+  const [conflict, setConflict] = useState(null)
 
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async user => {
@@ -41,7 +44,13 @@ export default function StaffDashboard() {
 
       let q
 
-      if (staffData.designation === "hod") {
+      if (staffData.designation === "principal") {
+        q = query(
+          collection(db, "requests"),
+          where("status", "==", "forwarded_to_principal"),
+          orderBy("createdAt", "desc")
+        )
+      } else if (staffData.designation === "hod") {
         q = query(
           collection(db, "requests"),
           where("department", "==", staffData.department),
@@ -50,7 +59,7 @@ export default function StaffDashboard() {
       } else {
         q = query(
           collection(db, "requests"),
-          where("staffId", "==", user.uid),
+          where("staffId", "==", auth.currentUser.uid),
           orderBy("createdAt", "desc")
         )
       }
@@ -58,7 +67,10 @@ export default function StaffDashboard() {
       const snap = await getDocs(q)
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
 
-      if (staffData.designation === "hod") {
+      if (staffData.designation === "principal") {
+        setPending(data)
+        setApproved([])
+      } else if (staffData.designation === "hod") {
         setPending(data.filter(r => r.status === "forwarded_to_hod"))
         setApproved(data.filter(r => r.status !== "forwarded_to_hod"))
       } else {
@@ -70,11 +82,62 @@ export default function StaffDashboard() {
     return () => unsub()
   }, [navigate])
 
+  const checkConflicts = async request => {
+    const slotQuery = query(
+      collection(db, "labSlots"),
+      where("labId", "==", request.labId)
+    )
+
+    const snap = await getDocs(slotQuery)
+
+    for (const docSnap of snap.docs) {
+      const slot = docSnap.data()
+      for (const rSlot of request.slots) {
+        if (slot.date === rSlot.date) {
+          if (slot.time === "FULL" || rSlot.time === "FULL" || slot.time === rSlot.time) {
+            return {
+              date: rSlot.date,
+              time: rSlot.time
+            }
+          }
+        }
+      }
+    }
+    return null
+  }
+
   const updateStatus = useCallback(async status => {
     if (!active || !staff) return
 
+    if (staff.designation === "principal" && status === "approved") {
+      const conflictResult = await checkConflicts(active)
+      if (conflictResult) {
+        setConflict(conflictResult)
+        return
+      }
+
+      for (const s of active.slots) {
+        await addDoc(collection(db, "labSlots"), {
+          labId: active.labId,
+          labName: active.labName,
+          date: s.date,
+          time: s.time,
+          approvedFor: active.studentName,
+          requestId: active.id,
+          createdAt: serverTimestamp()
+        })
+      }
+    }
+
     const updateData =
-      staff.designation === "hod"
+      staff.designation === "principal"
+        ? {
+            status,
+            principalRemarks: remark,
+            principalId: auth.currentUser.uid,
+            principalName: staff.fullName
+          }
+        : staff.designation === "hod"
         ? {
             status,
             hodRemarks: remark,
@@ -92,6 +155,7 @@ export default function StaffDashboard() {
     setApproved(a => [{ ...active, status }, ...a])
     setActive(null)
     setRemark("")
+    setConflict(null)
   }, [active, remark, staff])
 
   const formatTime = ts =>
@@ -139,6 +203,7 @@ export default function StaffDashboard() {
                 onClick={() => {
                   setActive(r)
                   setRemark("")
+                  setConflict(null)
                 }}
               >
                 Open Ticket
@@ -179,11 +244,6 @@ export default function StaffDashboard() {
             </div>
 
             <div className={styles.detail}>
-              <span>Department</span>
-              <p>{active.department}</p>
-            </div>
-
-            <div className={styles.detail}>
               <span>Description</span>
               <p>{active.description}</p>
             </div>
@@ -211,9 +271,18 @@ export default function StaffDashboard() {
               </div>
             )}
 
+            {conflict && (
+              <div className={styles.detail}>
+                <span>Conflict Detected</span>
+                <p>{conflict.date} · {conflict.time}</p>
+              </div>
+            )}
+
             <textarea
               placeholder={
-                staff.designation === "hod"
+                staff.designation === "principal"
+                  ? "Type Principal remarks"
+                  : staff.designation === "hod"
                   ? "Type HOD remarks"
                   : "Type tutor remarks"
               }
@@ -225,18 +294,28 @@ export default function StaffDashboard() {
               <button onClick={() => updateStatus("sent_back")}>
                 Send Back
               </button>
-              <button
-                className={styles.forward}
-                onClick={() =>
-                  updateStatus(
-                    staff.designation === "hod"
-                      ? "forwarded_to_principal"
-                      : "forwarded_to_hod"
-                  )
-                }
-              >
-                Forward
-              </button>
+
+              {staff.designation === "principal" ? (
+                <button
+                  className={styles.forward}
+                  onClick={() => updateStatus("approved")}
+                >
+                  Approve
+                </button>
+              ) : (
+                <button
+                  className={styles.forward}
+                  onClick={() =>
+                    updateStatus(
+                      staff.designation === "hod"
+                        ? "forwarded_to_principal"
+                        : "forwarded_to_hod"
+                    )
+                  }
+                >
+                  Forward
+                </button>
+              )}
             </div>
           </div>
         </div>
