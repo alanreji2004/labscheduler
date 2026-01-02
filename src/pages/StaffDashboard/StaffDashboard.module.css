@@ -76,7 +76,7 @@
 }
 
 .cardMuted {
-  border: 1px dashed #ddd;
+  border: 1px #ddd;
   padding: 16px;
   border-radius: 8px;
   background: #fafafa;

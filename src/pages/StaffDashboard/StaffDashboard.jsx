@@ -34,19 +34,42 @@ export default function StaffDashboard() {
         query(collection(db, "users"), where("__name__", "==", user.uid))
       )
 
-      if (!userSnap.empty) setStaff(userSnap.docs[0].data())
+      if (userSnap.empty) return
 
-      const q = query(
-        collection(db, "requests"),
-        where("staffId", "==", user.uid),
-        orderBy("createdAt", "desc")
-      )
+      const staffData = userSnap.docs[0].data()
+      setStaff(staffData)
+
+      let q
+
+      if (staffData.designation === "hod") {
+        q = query(
+          collection(db, "requests"),
+          where("department", "==", staffData.department),
+          where("status", "==", "forwarded_to_hod"),
+          orderBy("createdAt", "desc")
+        )
+      } else {
+        q = query(
+          collection(db, "requests"),
+          where("staffId", "==", user.uid),
+          orderBy("createdAt", "desc")
+        )
+      }
 
       const snap = await getDocs(q)
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
 
-      setPending(data.filter(r => r.status === "pending"))
-      setApproved(data.filter(r => r.status !== "pending"))
+      setPending(
+        staffData.designation === "hod"
+          ? data
+          : data.filter(r => r.status === "pending")
+      )
+
+      setApproved(
+        staffData.designation === "hod"
+          ? []
+          : data.filter(r => r.status !== "pending")
+      )
     })
 
     return () => unsub()
@@ -55,21 +78,21 @@ export default function StaffDashboard() {
   const updateStatus = useCallback(async status => {
     if (!active) return
 
-    await updateDoc(doc(db, "requests", active.id), {
-      status,
-      tutorRemarks: remark
-    })
+    const updateData =
+      staff.designation === "hod"
+        ? { status, hodRemarks: remark }
+        : { status, tutorRemarks: remark }
+
+    await updateDoc(doc(db, "requests", active.id), updateData)
 
     setPending(p => p.filter(r => r.id !== active.id))
     setApproved(a => [{ ...active, status }, ...a])
     setActive(null)
     setRemark("")
-  }, [active, remark])
+  }, [active, remark, staff])
 
   const formatTime = ts =>
-    ts?.seconds
-      ? new Date(ts.seconds * 1000).toLocaleString()
-      : ""
+    ts?.seconds ? new Date(ts.seconds * 1000).toLocaleString() : ""
 
   if (!staff) return <div className={styles.loading}>Loading...</div>
 
@@ -112,7 +135,7 @@ export default function StaffDashboard() {
                 className={styles.open}
                 onClick={() => {
                   setActive(r)
-                  setRemark(r.tutorRemarks || "")
+                  setRemark("")
                 }}
               >
                 Open Ticket
@@ -121,21 +144,23 @@ export default function StaffDashboard() {
           ))}
         </section>
 
-        <section className={styles.section}>
-          <h2>Approved / Forwarded</h2>
+        {approved.length > 0 && (
+          <section className={styles.section}>
+            <h2>Approved / Forwarded</h2>
 
-          {approved.map(r => (
-            <div key={r.id} className={styles.cardMuted}>
-              <div className={styles.meta}>
-                <strong>{r.studentName}</strong>
-                <span>{r.subject}</span>
+            {approved.map(r => (
+              <div key={r.id} className={styles.cardMuted}>
+                <div className={styles.meta}>
+                  <strong>{r.studentName}</strong>
+                  <span>{r.subject}</span>
+                </div>
+                <div className={styles.status}>
+                  {r.status.replaceAll("_", " ")}
+                </div>
               </div>
-              <div className={styles.status}>
-                {r.status.replaceAll("_", " ")}
-              </div>
-            </div>
-          ))}
-        </section>
+            ))}
+          </section>
+        )}
       </main>
 
       {active && (
@@ -167,13 +192,20 @@ export default function StaffDashboard() {
               ))}
             </div>
 
-            <div className={styles.detail}>
-              <span>Request Sent</span>
-              <p>{formatTime(active.createdAt)}</p>
-            </div>
+            {active.tutorRemarks && (
+              <div className={styles.detail}>
+                <span>Tutor Remarks</span>
+                <p>{active.tutorRemarks}</p>
+                <p>Approved by {active.staffName}</p>
+              </div>
+            )}
 
             <textarea
-              placeholder="Type tutor remarks"
+              placeholder={
+                staff.designation === "hod"
+                  ? "Type HOD remarks"
+                  : "Type tutor remarks"
+              }
               value={remark}
               onChange={e => setRemark(e.target.value)}
             />
@@ -184,9 +216,15 @@ export default function StaffDashboard() {
               </button>
               <button
                 className={styles.forward}
-                onClick={() => updateStatus("forwarded_to_hod")}
+                onClick={() =>
+                  updateStatus(
+                    staff.designation === "hod"
+                      ? "forwarded_to_principal"
+                      : "forwarded_to_hod"
+                  )
+                }
               >
-                Forward to HOD
+                Forward
               </button>
             </div>
           </div>
