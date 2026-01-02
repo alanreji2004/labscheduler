@@ -122,9 +122,16 @@
   background: white;
   width: 90%;
   max-width: 520px;
-  padding: 28px;
+  height: 80vh;
   border-radius: 8px;
   position: relative;
+  display: flex;
+  flex-direction: column;
+}
+
+.modalContent {
+  padding: 28px;
+  overflow-y: auto;
 }
 
 .modal h3 {

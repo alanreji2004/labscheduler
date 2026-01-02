@@ -95,10 +95,7 @@ export default function StaffDashboard() {
       for (const rSlot of request.slots) {
         if (slot.date === rSlot.date) {
           if (slot.time === "FULL" || rSlot.time === "FULL" || slot.time === rSlot.time) {
-            return {
-              date: rSlot.date,
-              time: rSlot.time
-            }
+            return { date: rSlot.date, time: rSlot.time }
           }
         }
       }
@@ -236,91 +233,93 @@ export default function StaffDashboard() {
           <div className={styles.modal} onClick={e => e.stopPropagation()}>
             <button className={styles.close} onClick={() => setActive(null)}>×</button>
 
-            <h3>{active.subject}</h3>
+            <div className={styles.modalContent}>
+              <h3>{active.subject}</h3>
 
-            <div className={styles.detail}>
-              <span>Student</span>
-              <p>{active.studentName}</p>
-            </div>
-
-            <div className={styles.detail}>
-              <span>Subject</span>
-              <p>{active.subject}</p>
-            </div>
-
-            <div className={styles.detail}>
-              <span>Description</span>
-              <p>{active.description}</p>
-            </div>
-
-            <div className={styles.detail}>
-              <span>Requested Slots</span>
-              {active.slots.map((s, i) => (
-                <p key={i}>{s.date} · {s.time}</p>
-              ))}
-            </div>
-
-            {active.tutorRemarks && (
               <div className={styles.detail}>
-                <span>Tutor Remarks</span>
-                <p>{active.tutorRemarks}</p>
-                <p>Approved by {active.staffName}</p>
+                <span>Student</span>
+                <p>{active.studentName}</p>
               </div>
-            )}
 
-            {active.hodRemarks && (
               <div className={styles.detail}>
-                <span>HOD Remarks</span>
-                <p>{active.hodRemarks}</p>
-                <p>Approved by {active.hodName}</p>
+                <span>Subject</span>
+                <p>{active.subject}</p>
               </div>
-            )}
 
-            {conflict && (
               <div className={styles.detail}>
-                <span>Conflict Detected</span>
-                <p>{conflict.date} · {conflict.time}</p>
+                <span>Description</span>
+                <p>{active.description}</p>
               </div>
-            )}
 
-            <textarea
-              placeholder={
-                staff.designation === "principal"
-                  ? "Type Principal remarks"
-                  : staff.designation === "hod"
-                  ? "Type HOD remarks"
-                  : "Type tutor remarks"
-              }
-              value={remark}
-              onChange={e => setRemark(e.target.value)}
-            />
+              <div className={styles.detail}>
+                <span>Requested Slots</span>
+                {active.slots.map((s, i) => (
+                  <p key={i}>{s.date} · {s.time}</p>
+                ))}
+              </div>
 
-            <div className={styles.actions}>
-              <button onClick={() => updateStatus("sent_back")}>
-                Send Back
-              </button>
-
-              {staff.designation === "principal" ? (
-                <button
-                  className={styles.forward}
-                  onClick={() => updateStatus("approved")}
-                >
-                  Approve
-                </button>
-              ) : (
-                <button
-                  className={styles.forward}
-                  onClick={() =>
-                    updateStatus(
-                      staff.designation === "hod"
-                        ? "forwarded_to_principal"
-                        : "forwarded_to_hod"
-                    )
-                  }
-                >
-                  Forward
-                </button>
+              {active.tutorRemarks && (
+                <div className={styles.detail}>
+                  <span>Tutor Remarks</span>
+                  <p>{active.tutorRemarks}</p>
+                  <p>Approved by {active.staffName}</p>
+                </div>
               )}
+
+              {active.hodRemarks && (
+                <div className={styles.detail}>
+                  <span>HOD Remarks</span>
+                  <p>{active.hodRemarks}</p>
+                  <p>Approved by {active.hodName}</p>
+                </div>
+              )}
+
+              {conflict && (
+                <div className={styles.detail}>
+                  <span>Conflict Detected</span>
+                  <p>{conflict.date} · {conflict.time}</p>
+                </div>
+              )}
+
+              <textarea
+                placeholder={
+                  staff.designation === "principal"
+                    ? "Type Principal remarks"
+                    : staff.designation === "hod"
+                    ? "Type HOD remarks"
+                    : "Type tutor remarks"
+                }
+                value={remark}
+                onChange={e => setRemark(e.target.value)}
+              />
+
+              <div className={styles.actions}>
+                <button onClick={() => updateStatus("sent_back")}>
+                  Send Back
+                </button>
+
+                {staff.designation === "principal" ? (
+                  <button
+                    className={styles.forward}
+                    onClick={() => updateStatus("approved")}
+                  >
+                    Approve
+                  </button>
+                ) : (
+                  <button
+                    className={styles.forward}
+                    onClick={() =>
+                      updateStatus(
+                        staff.designation === "hod"
+                          ? "forwarded_to_principal"
+                          : "forwarded_to_hod"
+                      )
+                    }
+                  >
+                    Forward
+                  </button>
+                )}
+              </div>
             </div>
           </div>
         </div>
