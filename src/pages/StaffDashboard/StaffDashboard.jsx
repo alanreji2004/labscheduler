@@ -45,7 +45,6 @@ export default function StaffDashboard() {
         q = query(
           collection(db, "requests"),
           where("department", "==", staffData.department),
-          where("status", "==", "forwarded_to_hod"),
           orderBy("createdAt", "desc")
         )
       } else {
@@ -59,29 +58,33 @@ export default function StaffDashboard() {
       const snap = await getDocs(q)
       const data = snap.docs.map(d => ({ id: d.id, ...d.data() }))
 
-      setPending(
-        staffData.designation === "hod"
-          ? data
-          : data.filter(r => r.status === "pending")
-      )
-
-      setApproved(
-        staffData.designation === "hod"
-          ? []
-          : data.filter(r => r.status !== "pending")
-      )
+      if (staffData.designation === "hod") {
+        setPending(data.filter(r => r.status === "forwarded_to_hod"))
+        setApproved(data.filter(r => r.status !== "forwarded_to_hod"))
+      } else {
+        setPending(data.filter(r => r.status === "pending"))
+        setApproved(data.filter(r => r.status !== "pending"))
+      }
     })
 
     return () => unsub()
   }, [navigate])
 
   const updateStatus = useCallback(async status => {
-    if (!active) return
+    if (!active || !staff) return
 
     const updateData =
       staff.designation === "hod"
-        ? { status, hodRemarks: remark }
-        : { status, tutorRemarks: remark }
+        ? {
+            status,
+            hodRemarks: remark,
+            hodId: auth.currentUser.uid,
+            hodName: staff.fullName
+          }
+        : {
+            status,
+            tutorRemarks: remark
+          }
 
     await updateDoc(doc(db, "requests", active.id), updateData)
 
@@ -197,6 +200,14 @@ export default function StaffDashboard() {
                 <span>Tutor Remarks</span>
                 <p>{active.tutorRemarks}</p>
                 <p>Approved by {active.staffName}</p>
+              </div>
+            )}
+
+            {active.hodRemarks && (
+              <div className={styles.detail}>
+                <span>HOD Remarks</span>
+                <p>{active.hodRemarks}</p>
+                <p>Approved by {active.hodName}</p>
               </div>
             )}
 
