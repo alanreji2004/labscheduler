@@ -9,6 +9,7 @@ import AdminDashboard from "./pages/AdminDashboard/AdminDashboard"
 import LabDetails from "./pages/LabDetails/LabDetails"
 
 import "./index.css"
+import StudentSignup from "./pages/StudentSignup/StudentSignup"
 
 const root = ReactDOM.createRoot(document.getElementById("root"))
 
@@ -16,6 +17,7 @@ root.render(
   <BrowserRouter>
     <Routes>
       <Route path="/" element={<StudentLogin />} />
+      <Route path="/signup" element={<StudentSignup />} />
       <Route path="/admin" element={<AdminLogin />} />
       <Route path="/student/dashboard" element={<StudentDashboard />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
