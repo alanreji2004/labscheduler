@@ -174,7 +174,7 @@ export default function LabDetails() {
           </div>
         </div>
 
-        <div className={styles.profile} onClick={() => navigate("/profile")}>
+        <div className={styles.profile} onClick={() => navigate("/student/profile")}>
           <span>{studentName}</span>
           <img src={profileIcon} />
         </div>

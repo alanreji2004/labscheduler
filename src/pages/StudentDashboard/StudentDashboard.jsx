@@ -51,7 +51,7 @@ export default function StudentDashboard() {
           </div>
         </div>
 
-        <div className={styles.profile} onClick={() => navigate("/profile")}>
+        <div className={styles.profile} onClick={() => navigate("/student/profile")}>
           <span>{userName}</span>
           <img src={profileIcon} />
         </div>
