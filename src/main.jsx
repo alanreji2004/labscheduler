@@ -13,6 +13,7 @@ import StudentSignup from "./pages/StudentSignup/StudentSignup"
 import StaffLogin from "./pages/StaffLogin/StaffLogin"
 import StaffSignup from "./pages/StaffSignup/StaffSignup"
 import StaffDashboard from "./pages/StaffDashboard/StaffDashboard"
+import StudentProfile from "./pages/StudentProfile/StudentProfile"
 const root = ReactDOM.createRoot(document.getElementById("root"))
 
 root.render(
@@ -26,6 +27,7 @@ root.render(
       <Route path="/" element={<StudentDashboard />} />
       <Route path="/staff/dashboard" element={<StaffDashboard />} />
       <Route path="/admin/dashboard" element={<AdminDashboard />} />
+      <Route path="/student/profile" element={<StudentProfile />} />
       <Route path="/lab/:id" element={<LabDetails />} />
     </Routes>
   </BrowserRouter>
