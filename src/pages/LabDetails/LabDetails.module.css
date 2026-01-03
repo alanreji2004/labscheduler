@@ -67,7 +67,6 @@
   height: 26px;
 }
 
-
 .profile span {
   font-size: 14px;
 }
@@ -132,6 +131,7 @@
   padding: 10px;
   text-align: center;
   font-size: 13px;
+  position: relative;
 }
 
 .form {
@@ -265,6 +265,7 @@
     padding: 18px;
   }
 }
+
 .labMeta {
   font-size: 14px;
   color: #555;
@@ -277,4 +278,33 @@
   border: 1px solid #e0e0e0;
   padding: 28px;
   border-radius: 6px;
+}
+
+.day.full {
+  background: #a9a8a8;
+  color: #ffffff;
+}
+
+.day.partial {
+  background: #fff3cd;
+  color: #333333;
+}
+
+.day .tooltip {
+  display: none;
+  position: absolute;
+  bottom: 110%;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #333333;
+  color: #ffffff;
+  padding: 6px 10px;
+  font-size: 12px;
+  border-radius: 4px;
+  white-space: nowrap;
+  z-index: 10;
+}
+
+.day:hover .tooltip {
+  display: block;
 }

@@ -36,6 +36,8 @@ export default function LabDetails() {
   const [description, setDescription] = useState("")
   const [loading, setLoading] = useState(true)
 
+  const [bookedSlots, setBookedSlots] = useState({})
+
   useEffect(() => {
     const unsub = onAuthStateChanged(auth, async user => {
       if (!user) {
@@ -62,6 +64,20 @@ export default function LabDetails() {
           .map(d => ({ id: d.id, ...d.data() }))
           .filter(s => s.designation !== "principal")
       )
+
+      const slotQuery = query(
+        collection(db, "labSlots"),
+        where("labId", "==", id)
+      )
+      const slotSnap = await getDocs(slotQuery)
+
+      const slotMap = {}
+      slotSnap.docs.forEach(d => {
+        const { date, time } = d.data()
+        if (!slotMap[date]) slotMap[date] = []
+        slotMap[date].push(time)
+      })
+      setBookedSlots(slotMap)
 
       setLoading(false)
     })
@@ -135,27 +151,34 @@ export default function LabDetails() {
     alert("Request submitted successfully")
   }
 
+  const getDateStatus = dateStr => {
+    const slots = bookedSlots[dateStr] || []
+    if (slots.includes("FULL")) return "full"
+    if (slots.length > 0) return "partial"
+    return ""
+  }
+
   if (loading || !lab) return <div className={styles.loading}>Loading...</div>
 
   return (
     <div className={styles.page}>
       <header className={styles.header}>
-              <div className={styles.brand}>
-                <img src={logo} className={styles.logo} />
-                <div className={styles.collegeText}>
-                  <div className={styles.collegeName}>COLLEGE OF ENGINEERING PERUMON</div>
-                  <div className={styles.collegeSub}>
-                    Under the Cooperative Academy of Professional Education (CAPE)<br />
-                    Established by <span>Govt. of Kerala</span>
-                  </div>
-                </div>
-              </div>
-      
-              <div className={styles.profile} onClick={() => navigate("/profile")}>
-                <span>{studentName}</span>
-                <img src={profileIcon} />
-              </div>
-            </header>
+        <div className={styles.brand}>
+          <img src={logo} className={styles.logo} />
+          <div className={styles.collegeText}>
+            <div className={styles.collegeName}>COLLEGE OF ENGINEERING PERUMON</div>
+            <div className={styles.collegeSub}>
+              Under the Cooperative Academy of Professional Education (CAPE)<br />
+              Established by <span>Govt. of Kerala</span>
+            </div>
+          </div>
+        </div>
+
+        <div className={styles.profile} onClick={() => navigate("/profile")}>
+          <span>{studentName}</span>
+          <img src={profileIcon} />
+        </div>
+      </header>
 
       <main className={styles.main}>
         <h1>{lab.name}</h1>
@@ -174,9 +197,20 @@ export default function LabDetails() {
           </div>
 
           <div className={styles.grid}>
-            {Array.from({ length: daysInMonth }, (_, i) => (
-              <div key={i} className={styles.day}>{i + 1}</div>
-            ))}
+            {Array.from({ length: daysInMonth }, (_, i) => {
+              const dateStr = `${currentMonth.getFullYear()}-${String(currentMonth.getMonth() + 1).padStart(2, "0")}-${String(i + 1).padStart(2, "0")}`
+              const status = getDateStatus(dateStr)
+              return (
+                <div key={i} className={`${styles.day} ${styles[status]}`}>
+                  {i + 1}
+                  {status && (
+                    <div className={styles.tooltip}>
+                      {(bookedSlots[dateStr] || []).join(", ")}
+                    </div>
+                  )}
+                </div>
+              )
+            })}
           </div>
         </section>
 
@@ -197,13 +231,9 @@ export default function LabDetails() {
 
           <select value={selectedStaff} onChange={e => setSelectedStaff(e.target.value)}>
             <option value="">Select Tutor</option>
-            {staffs
-              .filter(s => s.department === department)
-              .map(s => (
-                <option key={s.id} value={s.id}>
-                  {s.fullName}
-                </option>
-              ))}
+            {staffs.filter(s => s.department === department).map(s => (
+              <option key={s.id} value={s.id}>{s.fullName}</option>
+            ))}
           </select>
 
           <input placeholder="Subject" value={subject} onChange={e => setSubject(e.target.value)} />
@@ -222,10 +252,7 @@ export default function LabDetails() {
           ))}
 
           <button className={styles.add} onClick={addDateRow}>Add Date</button>
-
-          <button className={styles.submit} onClick={submitRequest}>
-            Submit Request
-          </button>
+          <button className={styles.submit} onClick={submitRequest}>Submit Request</button>
         </section>
       </main>
     </div>
