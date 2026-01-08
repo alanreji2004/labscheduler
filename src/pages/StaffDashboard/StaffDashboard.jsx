@@ -93,10 +93,13 @@ export default function StaffDashboard() {
     for (const docSnap of snap.docs) {
       const slot = docSnap.data()
       for (const rSlot of request.slots) {
-        if (slot.date === rSlot.date) {
-          if (slot.time === "FULL" || rSlot.time === "FULL" || slot.time === rSlot.time) {
-            return { date: rSlot.date, time: rSlot.time }
-          }
+        if (
+          slot.date === rSlot.date &&
+          (slot.time === "FULL" ||
+            rSlot.time === "FULL" ||
+            slot.time === rSlot.time)
+        ) {
+          return { date: rSlot.date, time: rSlot.time }
         }
       }
     }
@@ -119,7 +122,6 @@ export default function StaffDashboard() {
           labName: active.labName,
           date: s.date,
           time: s.time,
-          approvedFor: active.studentName,
           requestId: active.id,
           createdAt: serverTimestamp()
         })
@@ -143,7 +145,8 @@ export default function StaffDashboard() {
           }
         : {
             status,
-            tutorRemarks: remark
+            tutorRemarks: remark,
+            staffName: staff.fullName
           }
 
     await updateDoc(doc(db, "requests", active.id), updateData)
@@ -242,11 +245,6 @@ export default function StaffDashboard() {
               </div>
 
               <div className={styles.detail}>
-                <span>Subject</span>
-                <p>{active.subject}</p>
-              </div>
-
-              <div className={styles.detail}>
                 <span>Description</span>
                 <p>{active.description}</p>
               </div>
@@ -258,25 +256,21 @@ export default function StaffDashboard() {
                 ))}
               </div>
 
-              {active.tutorRemarks && (
-                <div className={styles.detail}>
-                  <span>Tutor Remarks</span>
-                  <p>{active.tutorRemarks}</p>
-                  <p>Approved by {active.staffName}</p>
-                </div>
-              )}
-
-              {active.hodRemarks && (
-                <div className={styles.detail}>
-                  <span>HOD Remarks</span>
-                  <p>{active.hodRemarks}</p>
-                  <p>Approved by {active.hodName}</p>
-                </div>
-              )}
+              <div className={styles.detail}>
+                <span>Approval Trail</span>
+                {active.status !== "pending" && active.staffName && (
+                  <p>Approved by Tutor: {active.staffName}</p>
+                )}
+                {(active.status === "forwarded_to_principal" || active.status === "approved") &&
+                  active.hodName && <p>Approved by HOD: {active.hodName}</p>}
+                {active.status === "approved" && active.principalName && (
+                  <p>Approved by Principal: {active.principalName}</p>
+                )}
+              </div>
 
               {conflict && (
                 <div className={styles.detail}>
-                  <span>Conflict Detected</span>
+                  <span style={{ color: "red" }}>Slot Already Booked</span>
                   <p>{conflict.date} · {conflict.time}</p>
                 </div>
               )}
@@ -301,7 +295,7 @@ export default function StaffDashboard() {
                 {staff.designation === "principal" ? (
                   <button
                     className={styles.forward}
-                    onClick={() => updateStatus("approved by principal")}
+                    onClick={() => updateStatus("approved")}
                   >
                     Approve
                   </button>
